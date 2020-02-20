@@ -4,7 +4,7 @@
 package com.example;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 
@@ -15,19 +15,26 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 public class Library {
+	
+	private static final String APP_PROPERTIES = "application.properties";
+	
     public boolean someLibraryMethod() {
         return true;
     }
     
     public static void main(String[] args) throws Exception	 {
-    	System.out.println(Arrays.toString(args));
-        new Library().start();
+    	Properties properties = new Properties();
+    	properties.load(Library.class.getClassLoader().getResourceAsStream(APP_PROPERTIES));
+        int port = Integer.parseInt(properties.getProperty("port"));
+    	if (args.length>0)
+    		port = Integer.parseInt(args[0]);    		
+    	new Library().start(port);
     }
 
-    public void start() throws ServletException, LifecycleException {
+    public void start(int port) throws ServletException, LifecycleException {
 
         Tomcat tomcat = new Tomcat();
-        tomcat.setPort(9080);
+        tomcat.setPort(port);
 
         Context context = tomcat.addWebapp("/", new File(".").getAbsolutePath());
 
